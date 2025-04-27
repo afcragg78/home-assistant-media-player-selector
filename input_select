@@ -1,0 +1,38 @@
+# input_select.yaml
+# Input select configurations for media player selectors
+input_select:
+  media_player_selector:
+    name: Media Player Selector
+    options:
+      - Living Room Volumio
+      - Kitchen Echo
+      - Audio Rack Cube
+      - Living Room Cube
+      - Bedroom Cube
+      - Fire Tablet
+      - Bathroom
+      - Audio Rack Cast
+      - Art Frame
+      - Bedside Display
+      - Bedroom Receiver
+      - Game Room
+      - Spotify
+    initial: Living Room Volumio
+
+  media_player_selector_internal:
+    name: Internal Media Player Selector
+    options:
+      - media_player.living_room_volumio
+      - media_player.kitchen_echo
+      - media_player.audio_rack_cube
+      - media_player.living_room_cube
+      - media_player.bedroom_cube
+      - media_player.fire_tablet
+      - media_player.bathroom_speaker
+      - media_player.audio_rack_cast
+      - media_player.art_frame
+      - media_player.bedside_display
+      - media_player.bedroom_receiver
+      - media_player.game_room_speaker
+      - media_player.spotify_user
+    initial: media_player.living_room_volumio
