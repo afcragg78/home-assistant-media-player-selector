@@ -1,0 +1,168 @@
+# dashboard.yaml
+# Lovelace dashboard for a dynamic media player selector with friendly names
+type: vertical-stack
+cards:
+  - type: entities
+    entities:
+      - entity: input_select.media_player_selector
+        name: Select Media Player
+        tap_action:
+          action: call-service
+          service: script.refresh_dashboard
+          service_data: {}
+  - type: custom:state-switch
+    entity: input_select.media_player_selector_internal
+    states:
+      media_player.living_room_volumio:
+        type: custom:mini-media-player
+        entity: media_player.living_room_volumio
+        artwork: full-cover
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.kitchen_echo:
+        type: custom:mini-media-player
+        entity: media_player.kitchen_echo
+        artwork: full-cover
+        picture: >
+          {% set custom_url = state_attr('media_player.kitchen_echo', 'custom_artwork_url') %}
+          {% if custom_url and custom_url != "" %}
+            {{ custom_url }}
+          {% else %}
+            {{ state_attr('media_player.kitchen_echo', 'entity_picture') }}
+          {% endif %}
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.audio_rack_cube:
+        type: custom:mini-media-player
+        entity: media_player.audio_rack_cube
+        artwork: full-cover
+        picture: >
+          {% set custom_url = state_attr('media_player.audio_rack_cube', 'custom_artwork_url') %}
+          {% if custom_url and custom_url != "" %}
+            {{ custom_url }}
+          {% else %}
+            {{ state_attr('media_player.audio_rack_cube', 'entity_picture') }}
+          {% endif %}
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.living_room_cube:
+        type: custom:mini-media-player
+        entity: media_player.living_room_cube
+        artwork: full-cover
+        picture: >
+          {% set custom_url = state_attr('media_player.living_room_cube', 'custom_artwork_url') %}
+          {% if custom_url and custom_url != "" %}
+            {{ custom_url }}
+          {% else %}
+            {{ state_attr('media_player.living_room_cube', 'entity_picture') }}
+          {% endif %}
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.bedroom_cube:
+        type: custom:mini-media-player
+        entity: media_player.bedroom_cube
+        artwork: full-cover
+        picture: >
+          {% set custom_url = state_attr('media_player.bedroom_cube', 'custom_artwork_url') %}
+          {% if custom_url and custom_url != "" %}
+            {{ custom_url }}
+          {% else %}
+            {{ state_attr('media_player.bedroom_cube', 'entity_picture') }}
+          {% endif %}
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.fire_tablet:
+        type: custom:mini-media-player
+        entity: media_player.fire_tablet
+        artwork: full-cover
+        picture: >
+          {% set custom_url = state_attr('media_player.fire_tablet', 'custom_artwork_url') %}
+          {% if custom_url and custom_url != "" %}
+            {{ custom_url }}
+          {% else %}
+            {{ state_attr('media_player.fire_tablet', 'entity_picture') }}
+          {% endif %}
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.bathroom_speaker:
+        type: custom:mini-media-player
+        entity: media_player.bathroom_speaker
+        artwork: full-cover
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.audio_rack_cast:
+        type: custom:mini-media-player
+        entity: media_player.audio_rack_cast
+        artwork: full-cover
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.art_frame:
+        type: custom:mini-media-player
+        entity: media_player.art_frame
+        artwork: full-cover
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.bedside_display:
+        type: custom:mini-media-player
+        entity: media_player.bedside_display
+        artwork: full-cover
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.bedroom_receiver:
+        type: custom:mini-media-player
+        entity: media_player.bedroom_receiver
+        artwork: full-cover
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.game_room_speaker:
+        type: custom:mini-media-player
+        entity: media_player.game_room_speaker
+        artwork: full-cover
+        hide:
+          power: false
+          source: false
+          volume: false
+      media_player.spotify_user:
+        type: custom:mini-media-player
+        entity: media_player.spotify_user
+        name: Spotify
+        artwork: full
+        source: full
+        show_progress: true
+        info: short
+        toggle_power: true
+        volume_stateless: false
+        hide:
+          power: false
+          source: false
+          volume: false
+    default:
+      type: custom:mini-media-player
+      entity: media_player.living_room_volumio
+      artwork: full-cover
+      hide:
+        power: false
+        source: false
+        volume: false
