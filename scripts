@@ -1,0 +1,35 @@
+# scripts.yaml
+# Scripts to refresh the dashboard and set media player based on Spotify source
+refresh_dashboard:
+  alias: Refresh Dashboard
+  sequence:
+    - action: browser_mod.refresh
+      data:
+        browser_id:
+          - browser_id_1
+          - browser_id_2
+          - browser_id_3
+  mode: single
+  description: Refreshes specific browser instances for dashboard updates
+
+set_media_player_based_on_spotify_source:
+  alias: Set Media Player Based on Spotify Source
+  sequence:
+    - action: input_select.select_option
+      data:
+        entity_id: input_select.media_player_selector_internal
+        option: >
+          {% set source = state_attr('media_player.spotify_user', 'source') | default('') %}
+          {% set source_to_entity = {
+            'Audio Rack Cube': 'media_player.audio_rack_cube',
+            'Living Room Cube': 'media_player.living_room_cube',
+            'Bedroom Cube': 'media_player.bedroom_cube',
+            'Fire Tablet': 'media_player.fire_tablet'
+          } %}
+          {% if source and 'Cube' in source %}
+            {{ source_to_entity.get(source, 'media_player.spotify_user') }}
+          {% else %}
+            media_player.spotify_user
+          {% endif %}
+  mode: single
+  description: Sets media player selector based on Spotify's Fire TV Cube source
