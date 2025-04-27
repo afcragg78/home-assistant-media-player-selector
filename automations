@@ -1,87 +1,54 @@
 # automations.yaml
-# Automations to sync media player selectors, manage Spotify source, and prioritize media players
+# Automations to sync media player selectors, manage Spotify playback, and prioritize media players
+
 - alias: Friendly Name Sync
   description: Updates friendly name dropdown based on internal selector
-  triggers:
-    - trigger: state
+  trigger:
+    - platform: state
       entity_id: input_select.media_player_selector_internal
-  conditions: []
-  actions:
-    - action: input_select.select_option
+  condition: []
+  action:
+    - service: input_select.select_option
       target:
         entity_id: input_select.media_player_selector
       data:
         option: >
           {% set entity_to_friendly = {
-            'media_player.living_room_volumio': 'Living Room Volumio',
-            'media_player.kitchen_echo': 'Kitchen Echo',
-            'media_player.audio_rack_cube': 'Audio Rack Cube',
+            'media_player.living_room_player': 'Living Room Player',
+            'media_player.kitchen_speaker': 'Kitchen Speaker',
+            'media_player.bedroom_receiver': 'Bedroom Receiver',
+            'media_player.living_room_cast': 'Living Room Cast',
             'media_player.living_room_cube': 'Living Room Cube',
             'media_player.bedroom_cube': 'Bedroom Cube',
-            'media_player.fire_tablet': 'Fire Tablet',
-            'media_player.bathroom_speaker': 'Bathroom',
-            'media_player.audio_rack_cast': 'Audio Rack Cast',
-            'media_player.art_frame': 'Art Frame',
-            'media_player.bedside_display': 'Bedside Display',
-            'media_player.bedroom_receiver': 'Bedroom Receiver',
-            'media_player.game_room_speaker': 'Game Room',
+            'media_player.office_cube': 'Office Cube',
             'media_player.spotify_user': 'Spotify'
           } %}
-          {{ entity_to_friendly.get(states('input_select.media_player_selector_internal'), 'Living Room Volumio') }}
+          {{ entity_to_friendly.get(states('input_select.media_player_selector_internal'), 'Living Room Player') }}
   mode: single
 
 - alias: Reverse Friendly Name Sync
   description: Updates internal selector based on friendly name dropdown
-  triggers:
-    - trigger: state
+  trigger:
+    - platform: state
       entity_id: input_select.media_player_selector
-  conditions: []
-  actions:
-    - action: input_select.select_option
+  condition: []
+  action:
+    - service: input_select.select_option
       target:
         entity_id: input_select.media_player_selector_internal
       data:
         option: >
           {% set friendly_to_entity = {
-            'Living Room Volumio': 'media_player.living_room_volumio',
-            'Kitchen Echo': 'media_player.kitchen_echo',
-            'Audio Rack Cube': 'media_player.audio_rack_cube',
+            'Living Room Player': 'media_player.living_room_player',
+            'Kitchen Speaker': 'media_player.kitchen_speaker',
+            'Bedroom Receiver': 'media_player.bedroom_receiver',
+            'Living Room Cast': 'media_player.living_room_cast',
             'Living Room Cube': 'media_player.living_room_cube',
             'Bedroom Cube': 'media_player.bedroom_cube',
-            'Fire Tablet': 'media_player.fire_tablet',
-            'Bathroom': 'media_player.bathroom_speaker',
-            'Audio Rack Cast': 'media_player.audio_rack_cast',
-            'Art Frame': 'media_player.art_frame',
-            'Bedside Display': 'media_player.bedside_display',
-            'Bedroom Receiver': 'media_player.bedroom_receiver',
-            'Game Room': 'media_player.game_room_speaker',
+            'Office Cube': 'media_player.office_cube',
             'Spotify': 'media_player.spotify_user'
           } %}
-          {{ friendly_to_entity.get(states('input_select.media_player_selector'), 'media_player.living_room_volumio') }}
-  mode: single
-
-- alias: Switch Spotify Source to This Phone on Cube Home Screen
-  description: Switches Spotify media player source to This Phone when a Fire TV Cube stops playing and is on the home screen with Spotify not running
-  triggers:
-    - trigger: state
-      entity_id:
-        - media_player.living_room_cube
-        - media_player.bedroom_cube
-        - media_player.audio_rack_cube
-      from: playing
-  conditions:
-    - condition: and
-      conditions:
-        - condition: template
-          value_template: "{{ trigger.to_state.attributes.app_id == 'com.amazon.tv.launcher' }}"
-        - condition: template
-          value_template: "{{ trigger.to_state.attributes.app_id != 'com.spotify.music' }}"
-  actions:
-    - action: media_player.select_source
-      target:
-        entity_id: media_player.spotify_user
-      data:
-        source: This Phone
+          {{ friendly_to_entity.get(states('input_select.media_player_selector'), 'media_player.living_room_player') }}
   mode: single
 
 - alias: Media Player Selector Spotify
@@ -91,7 +58,22 @@
       entity_id:
         - media_player.spotify_user
       to: playing
-  conditions: []
+  conditions:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: media_player.spotify_user
+          state: playing
+        - condition: template
+          value_template: >
+            {% set source = state_attr('media_player.spotify_user', 'source') %}
+            {% set mapped_sources = [
+              'Living Room Cast',
+              'Kitchen Speaker',
+              'Bedroom Receiver',
+              'Living Room Player'
+            ] %}
+            {{ source in mapped_sources }}
   actions:
     - action: input_select.select_option
       target:
@@ -99,50 +81,49 @@
       data:
         option: >
           {% set source = state_attr('media_player.spotify_user', 'source') %}
-          {% set source_to_entity = {
-            'Art Frame Chromecast': 'media_player.art_frame',
-            'Game Room Speaker': 'media_player.game_room_speaker',
-            'Bedroom Receiver': 'media_player.bedroom_receiver',
-            'Living Room Volumio': 'media_player.living_room_volumio'
-          } %}
-          {{ source_to_entity.get(source, states('input_select.media_player_selector_internal')) }}
+          {% if source == 'Living Room Cast' %}
+            media_player.living_room_cast
+          {% elif source == 'Kitchen Speaker' %}
+            media_player.kitchen_speaker
+          {% elif source == 'Bedroom Receiver' %}
+            media_player.bedroom_receiver
+          {% elif source == 'Living Room Player' %}
+            media_player.living_room_player
+          {% else %}
+            {{ states('input_select.media_player_selector_internal') }}
+          {% endif %}
   mode: single
 
 - alias: Media Player Selector Priority
-  description: Sets input_select.media_player_selector_internal with priority for Kitchen Echo
-  triggers:
-    - trigger: state
+  description: Sets input_select.media_player_selector_internal with priority for Kitchen Speaker
+  trigger:
+    - platform: state
       entity_id:
-        - media_player.living_room_volumio
-        - media_player.kitchen_echo
-        - media_player.audio_rack_cube
+        - media_player.living_room_player
+        - media_player.kitchen_speaker
+        - media_player.bedroom_receiver
+        - media_player.living_room_cast
         - media_player.living_room_cube
         - media_player.bedroom_cube
-        - media_player.fire_tablet
-        - media_player.bathroom_speaker
-        - media_player.audio_rack_cast
-        - media_player.art_frame
-        - media_player.bedside_display
-        - media_player.bedroom_receiver
-        - media_player.game_room_speaker
+        - media_player.office_cube
       to: playing
-  conditions:
+  condition:
     - condition: or
       conditions:
         - condition: state
-          entity_id: media_player.kitchen_echo
+          entity_id: media_player.kitchen_speaker
           state: playing
         - condition: state
-          entity_id: media_player.kitchen_echo
-          state: not playing
-  actions:
-    - action: input_select.select_option
+          entity_id: media_player.kitchen_speaker
+          state: idle
+  action:
+    - service: input_select.select_option
       target:
         entity_id: input_select.media_player_selector_internal
       data:
         option: >
-          {% if is_state('media_player.kitchen_echo', 'playing') %}
-            media_player.kitchen_echo
+          {% if is_state('media_player.kitchen_speaker', 'playing') %}
+            media_player.kitchen_speaker
           {% else %}
             {{ trigger.entity_id }}
           {% endif %}
